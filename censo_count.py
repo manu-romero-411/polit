@@ -6,8 +6,6 @@ from datetime import datetime
 import os
 import _aux as aux
 
-from main import eprint, iprint
-
 def get_int(input_str):
     while True:
         num_censo = input(input_str)

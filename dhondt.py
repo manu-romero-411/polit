@@ -1,11 +1,13 @@
 import argparse
+import math
 from operator import itemgetter
 from prettytable import PrettyTable
+import _aux as aux
 
 def generar_lista_partidos(num):
     lista_partidos = []
     for i in range(1, num + 1):
-        iprint("****")
+        aux.iprint("****")
         nombre = input("* Partido " + str(i) + " - Nombre: ")
         num_votos = 0
         bucle = True
@@ -13,14 +15,39 @@ def generar_lista_partidos(num):
             try:
                 num_votos = int(input("* Partido " + str(i) + " - Votos: "))
             except ValueError:
-                eprint("[ERROR] Se debe introducir un entero positivo")
+                aux.eprint("[ERROR] Se debe introducir un entero positivo")
             else:
                 bucle = False
         partido = (nombre, num_votos)
         lista_partidos.append(partido)
-        iprint("****")
+        aux.iprint("****")
 
     return(sorted(lista_partidos, key=itemgetter(1), reverse=True))
+
+def hare_calc(sillas, lista_partidos):
+    calculo = []
+    aux2 = []
+    suma = 0
+    for i in range(0,len(lista_partidos)):
+        suma = suma + lista_partidos[i][1]
+    
+    coc = suma / sillas
+
+    sumaaux = 0
+    for i in range(0,len(lista_partidos)):
+        division = math.modf(lista_partidos[i][1]/coc)
+        aux2.append((lista_partidos[i][0], division[0]))
+        sumaaux = sumaaux + int(division[1])
+        for j in range(0, int(division[1])):
+            calculo.append((lista_partidos[i][0], j))
+
+    aux2 = sorted(aux2, key=itemgetter(1), reverse=True)
+
+    for i in range(0, sillas - int(sumaaux)):
+        calculo.append(aux2[i])
+    
+    return(calculo)
+
 
 def dhondt_calc(sillas, lista_partidos):
     calculo = []
@@ -54,8 +81,13 @@ def run(metodo, num_partidos, num_escanos, votos_blancos):
     calculos = []
     if metodo == "dhondt":
         calculos = dhondt_calc(num_escanos, lista_partidos)
-    else:
+    elif metodo == "sainte_lague":
         calculos = sainte_lague_calc(num_escanos, lista_partidos)
+    elif metodo == "hare":
+        calculos = hare_calc(num_escanos, lista_partidos)
+    else:
+        aux.eprint("[ERROR] Método inválido: " + metodo)
+        exit(1)
 
     resultados = []
     for i in lista_partidos:
